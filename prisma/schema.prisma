@@ -1,0 +1,37 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// User model representing application users
+model User {
+  /// The unique identifier for a user
+  id        Int      @id @default(autoincrement())
+  /// The user's email address
+  email     String   @unique
+  /// The user's full name
+  nicname      String?
+  /// The posts written by the user
+  posts     Post[]
+  /// The date and time when the user was created
+  createdAt DateTime @default(now())
+}
+
+// Post model representing blog posts
+model Post {
+  /// The unique identifier for a post
+  id        Int      @id @default(autoincrement())
+  /// The title of the post
+  title     String
+  /// The content of the post
+  content   String?
+  /// The author of the post
+  author    User     @relation(fields: [authorId], references: [id])
+  authorId  Int
+  /// The date and time when the post was created
+  createdAt DateTime @default(now())
+}
