@@ -5,7 +5,7 @@ import { parse } from "./parser";
 import { Comments, createComments, diffComments } from "./comment";
 import { generateCommentStatements } from "./statement";
 import { defaultConfig, FullConfig, parseArgs } from "./config";
-import { outputMigrationFile } from "./migration";
+import { appendToLatestMigration, outputMigrationFile } from "./migration";
 
 const { getDMMF } = prismaInternals;
 
@@ -45,11 +45,23 @@ async function main(config: FullConfig) {
     return;
   }
 
-  const migrationDirName = await outputMigrationFile(
-    config.outputDir,
-    commentStatements,
-    config.migrationName
-  );
+  let migrationDirName: string | null;
+
+  if (config.appendToLatest) {
+    migrationDirName = await appendToLatestMigration(
+      config.outputDir,
+      commentStatements
+    );
+    if (!migrationDirName) {
+      return;
+    }
+  } else {
+    migrationDirName = await outputMigrationFile(
+      config.outputDir,
+      commentStatements,
+      config.migrationName
+    );
+  }
 
   fs.writeFileSync(
     latestMigrationCommentFilePath,
@@ -57,7 +69,8 @@ async function main(config: FullConfig) {
     "utf-8"
   );
 
-  console.log(`Comments generation completed: ${migrationDirName}`);
+  const action = config.appendToLatest ? "appended to" : "created";
+  console.log(`Comments migration ${action}: ${migrationDirName}`);
 }
 
 const args = process.argv.slice(2);

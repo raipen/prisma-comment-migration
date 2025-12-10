@@ -5,6 +5,7 @@ export interface FullConfig extends Config {
   schemaInputPath: string;
   latestCommentFilePath: string;
   migrationName?: string;
+  appendToLatest: boolean;
 }
 
 export const defaultConfig: FullConfig = {
@@ -14,6 +15,7 @@ export const defaultConfig: FullConfig = {
   includeEnumInFieldComment: true,
   provider: "mysql",
   outputDir: "prisma/migrations",
+  appendToLatest: false,
 };
 
 export function parseArgs(args: string[]): Partial<FullConfig> {
@@ -78,6 +80,10 @@ export function parseArgs(args: string[]): Partial<FullConfig> {
           i++;
         }
         break;
+      case "--append":
+      case "-a":
+        config.appendToLatest = true;
+        break;
       case "--help":
       case "-h":
         printHelp();
@@ -103,6 +109,7 @@ Options:
   -p, --provider <provider>   Database provider: mysql, postgresql (default: mysql)
   -o, --output-dir <path>     Output directory for migrations (default: prisma/migrations)
   -n, --name <name>           Migration name (will prompt if not provided)
+  -a, --append                Append to the latest migration file instead of creating new one
   -h, --help                  Show this help message
 `);
 }

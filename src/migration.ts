@@ -12,19 +12,75 @@ function getDatePrefix(): string {
     .replace(".000", "");
 }
 
-async function promptMigrationName(): Promise<string> {
-  const rl = readline.createInterface({
+function createReadlineInterface(): readline.Interface {
+  return readline.createInterface({
     input: process.stdin,
     output: process.stdout,
   });
+}
 
+async function prompt(question: string): Promise<string> {
+  const rl = createReadlineInterface();
   return new Promise((resolve) => {
-    rl.question("Enter migration name (leave empty for default): ", (answer) => {
+    rl.question(question, (answer) => {
       rl.close();
       resolve(answer.trim());
     });
   });
 }
+
+async function promptMigrationName(): Promise<string> {
+  return prompt("Enter migration name (leave empty for default): ");
+}
+
+async function confirmFile(filePath: string): Promise<boolean> {
+  const answer = await prompt(`Append to "${filePath}"? (y/N): `);
+  return answer.toLowerCase() === "y";
+}
+
+function findLatestMigrationDir(migrationsDir: string): string | null {
+  if (!fs.existsSync(migrationsDir)) {
+    return null;
+  }
+
+  const dirs = fs
+    .readdirSync(migrationsDir, { withFileTypes: true })
+    .filter((dirent) => dirent.isDirectory())
+    .map((dirent) => dirent.name)
+    .sort()
+    .reverse();
+
+  return dirs.length > 0 ? dirs[0] : null;
+}
+
+export const appendToLatestMigration = async (
+  migrationsDir: string,
+  commentStatements: string[]
+): Promise<string | null> => {
+  const latestDir = findLatestMigrationDir(migrationsDir);
+  if (!latestDir) {
+    console.error("No existing migration found to append to.");
+    return null;
+  }
+
+  const migrationFilePath = path.join(migrationsDir, latestDir, "migration.sql");
+  if (!fs.existsSync(migrationFilePath)) {
+    console.error(`Migration file not found: ${migrationFilePath}`);
+    return null;
+  }
+
+  const confirmed = await confirmFile(migrationFilePath);
+  if (!confirmed) {
+    console.log("Cancelled.");
+    return null;
+  }
+
+  const existingContent = fs.readFileSync(migrationFilePath, "utf-8");
+  const newContent = existingContent.trimEnd() + "\n\n" + commentStatements.join("\n");
+  fs.writeFileSync(migrationFilePath, newContent, "utf-8");
+
+  return latestDir;
+};
 
 export const outputMigrationFile = async (
   migrationsDir: string,
