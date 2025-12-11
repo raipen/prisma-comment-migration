@@ -61,6 +61,8 @@ Options:
   -n, --name <name>           Migration name (will prompt if not provided)
   -a, --append                Append to the latest migration file instead of creating new one
   -h, --help                  Show help message
+
+Note: -n and -a cannot be used together.
 ```
 
 ### Examples

@@ -59,6 +59,8 @@ Options:
   -n, --name <name>           migration 이름 (미지정시 프롬프트로 입력)
   -a, --append                새 파일 생성 대신 마지막 migration에 추가
   -h, --help                  도움말 표시
+
+Note: -n과 -a는 함께 사용할 수 없습니다.
 ```
 
 ### Examples

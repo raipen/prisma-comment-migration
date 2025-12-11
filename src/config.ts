@@ -18,6 +18,18 @@ export const defaultConfig: FullConfig = {
   appendToLatest: false,
 };
 
+function isOption(arg: string | undefined): boolean {
+  return arg !== undefined && arg.startsWith("-");
+}
+
+function requireValue(arg: string, nextArg: string | undefined): string {
+  if (!nextArg || isOption(nextArg)) {
+    console.error(`Error: ${arg} requires a value`);
+    process.exit(1);
+  }
+  return nextArg;
+}
+
 export function parseArgs(args: string[]): Partial<FullConfig> {
   const config: Partial<FullConfig> = {};
 
@@ -28,30 +40,28 @@ export function parseArgs(args: string[]): Partial<FullConfig> {
     switch (arg) {
       case "--schema":
       case "-s":
-        if (nextArg) {
-          config.schemaInputPath = nextArg;
-          i++;
-        }
+        config.schemaInputPath = requireValue(arg, nextArg);
+        i++;
         break;
       case "--latest-comment":
       case "-l":
-        if (nextArg) {
-          config.latestCommentFilePath = nextArg;
-          i++;
-        }
+        config.latestCommentFilePath = requireValue(arg, nextArg);
+        i++;
         break;
       case "--targets":
-      case "-t":
-        if (nextArg) {
-          const targets = nextArg
-            .split(",")
-            .filter((t): t is Target => AllTargets.includes(t as Target));
-          if (targets.length > 0) {
-            config.targets = targets;
-          }
-          i++;
+      case "-t": {
+        const value = requireValue(arg, nextArg);
+        const targets = value
+          .split(",")
+          .filter((t): t is Target => AllTargets.includes(t as Target));
+        if (targets.length === 0) {
+          console.error(`Error: ${arg} requires valid targets (table, column)`);
+          process.exit(1);
         }
+        config.targets = targets;
+        i++;
         break;
+      }
       case "--include-enum":
       case "-e":
         config.includeEnumInFieldComment = true;
@@ -60,25 +70,25 @@ export function parseArgs(args: string[]): Partial<FullConfig> {
         config.includeEnumInFieldComment = false;
         break;
       case "--provider":
-      case "-p":
-        if (nextArg && ["mysql", "postgresql"].includes(nextArg)) {
-          config.provider = nextArg as DatabaseProvider;
-          i++;
+      case "-p": {
+        const value = requireValue(arg, nextArg);
+        if (!["mysql", "postgresql"].includes(value)) {
+          console.error(`Error: ${arg} must be 'mysql' or 'postgresql'`);
+          process.exit(1);
         }
+        config.provider = value as DatabaseProvider;
+        i++;
         break;
+      }
       case "--output-dir":
       case "-o":
-        if (nextArg) {
-          config.outputDir = nextArg;
-          i++;
-        }
+        config.outputDir = requireValue(arg, nextArg);
+        i++;
         break;
       case "--name":
       case "-n":
-        if (nextArg) {
-          config.migrationName = nextArg;
-          i++;
-        }
+        config.migrationName = requireValue(arg, nextArg);
+        i++;
         break;
       case "--append":
       case "-a":
@@ -89,6 +99,12 @@ export function parseArgs(args: string[]): Partial<FullConfig> {
         printHelp();
         process.exit(0);
     }
+  }
+
+  // Validate conflicting options
+  if (config.appendToLatest && config.migrationName) {
+    console.error("Error: --append (-a) and --name (-n) cannot be used together");
+    process.exit(1);
   }
 
   return config;
@@ -111,5 +127,7 @@ Options:
   -n, --name <name>           Migration name (will prompt if not provided)
   -a, --append                Append to the latest migration file instead of creating new one
   -h, --help                  Show this help message
+
+Note: -n and -a cannot be used together.
 `);
 }
