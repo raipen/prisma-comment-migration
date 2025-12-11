@@ -30,8 +30,10 @@ CALL prisma_update_column_comment('User', 'email', 'User email address');
 ## Installation
 
 ```bash
-npm install -D @raipen/prisma-comment-migration
+npm install -D @raipen/prisma-comment-migration @prisma/internals
 ```
+
+> **Note**: `@prisma/internals` version should match your `prisma` version. If you're using prisma 5.x, install `@prisma/internals@5`.
 
 ## Usage
 
@@ -104,6 +106,19 @@ model User {
 Generated comment: `User role\nenum: Role(ADMIN, USER, GUEST)`
 
 Use `--no-include-enum` to disable this feature.
+
+## Prisma Version Support
+
+Supports Prisma 4.x ~ 7.x.
+
+| Prisma Version | Status |
+|----------------|--------|
+| 4.x | Supported |
+| 5.x | Supported |
+| 6.x | Supported |
+| 7.x | Supported |
+
+> **Note**: Starting from Prisma 7, the `url` property in `datasource` has been removed from schema files and moved to `prisma.config.ts`. This is a Prisma-specific change, and this library works correctly with the new schema format.
 
 ## Database Support
 

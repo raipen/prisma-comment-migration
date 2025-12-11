@@ -1,4 +1,4 @@
-import prismaInternals from "@prisma/internals";
+import { createRequire } from "module";
 import fs from "fs";
 import path from "path";
 import { parse } from "./parser";
@@ -7,6 +7,9 @@ import { generateCommentStatements } from "./statement";
 import { defaultConfig, FullConfig, parseArgs } from "./config";
 import { appendToLatestMigration, outputMigrationFile } from "./migration";
 
+// Load @prisma/internals from the project's node_modules (not from this package)
+const require = createRequire(path.join(process.cwd(), "package.json"));
+const prismaInternals = require("@prisma/internals");
 const { getDMMF } = prismaInternals;
 
 async function main(config: FullConfig) {

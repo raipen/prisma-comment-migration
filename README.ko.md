@@ -28,8 +28,10 @@ CALL prisma_update_column_comment('User', 'email', '사용자 이메일 주소')
 ## Installation
 
 ```bash
-npm install -D @raipen/prisma-comment-migration
+npm install -D @raipen/prisma-comment-migration @prisma/internals
 ```
+
+> **Note**: `@prisma/internals` 버전은 `prisma` 버전과 일치해야 합니다. prisma 5.x를 사용 중이라면 `@prisma/internals@5`를 설치하세요.
 
 ## Usage
 
@@ -102,6 +104,19 @@ model User {
 생성되는 주석: `사용자 역할\nenum: Role(ADMIN, USER, GUEST)`
 
 `--no-include-enum` 옵션으로 비활성화할 수 있습니다.
+
+## Prisma Version Support
+
+Prisma 4.x ~ 7.x 버전을 지원합니다.
+
+| Prisma 버전 | 지원 상태 |
+|------------|----------|
+| 4.x | 지원 |
+| 5.x | 지원 |
+| 6.x | 지원 |
+| 7.x | 지원 |
+
+> **Note**: Prisma 7부터 `datasource`의 `url` 속성이 schema 파일에서 제거되고 `prisma.config.ts`로 이동했습니다. 이는 Prisma 자체의 변경사항이며, 본 라이브러리는 새로운 schema 형식에서도 정상 동작합니다.
 
 ## Database Support
 
