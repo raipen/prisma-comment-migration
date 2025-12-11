@@ -22,10 +22,15 @@ function isOption(arg: string | undefined): boolean {
   return arg !== undefined && arg.startsWith("-");
 }
 
+function exitWithError(message: string): never {
+  console.error(`Error: ${message}`);
+  console.error("Use -h or --help for usage information.");
+  process.exit(1);
+}
+
 function requireValue(arg: string, nextArg: string | undefined): string {
   if (!nextArg || isOption(nextArg)) {
-    console.error(`Error: ${arg} requires a value`);
-    process.exit(1);
+    exitWithError(`${arg} requires a value`);
   }
   return nextArg;
 }
@@ -55,8 +60,7 @@ export function parseArgs(args: string[]): Partial<FullConfig> {
           .split(",")
           .filter((t): t is Target => AllTargets.includes(t as Target));
         if (targets.length === 0) {
-          console.error(`Error: ${arg} requires valid targets (table, column)`);
-          process.exit(1);
+          exitWithError(`${arg} requires valid targets (table, column)`);
         }
         config.targets = targets;
         i++;
@@ -73,8 +77,7 @@ export function parseArgs(args: string[]): Partial<FullConfig> {
       case "-p": {
         const value = requireValue(arg, nextArg);
         if (!["mysql", "postgresql"].includes(value)) {
-          console.error(`Error: ${arg} must be 'mysql' or 'postgresql'`);
-          process.exit(1);
+          exitWithError(`${arg} must be 'mysql' or 'postgresql'`);
         }
         config.provider = value as DatabaseProvider;
         i++;
@@ -103,8 +106,7 @@ export function parseArgs(args: string[]): Partial<FullConfig> {
 
   // Validate conflicting options
   if (config.appendToLatest && config.migrationName) {
-    console.error("Error: --append (-a) and --name (-n) cannot be used together");
-    process.exit(1);
+    exitWithError("--append (-a) and --name (-n) cannot be used together");
   }
 
   return config;
