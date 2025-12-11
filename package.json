@@ -1,6 +1,6 @@
 {
   "name": "@raipen/prisma-comment-migration",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Generate MySQL COMMENT migrations from Prisma schema triple-slash comments",
   "bin": {
     "prisma-comment-migration": "./dist/index.js",
