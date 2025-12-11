@@ -141,17 +141,30 @@ Supports Prisma 4.x ~ 7.x.
 
 ## Workflow
 
-We recommend running this tool after `npx prisma migrate dev`:
+We recommend using `--create-only` to create the migration file first, then append comments before applying:
 
 ```bash
-# 1. Create Prisma migration
-npx prisma migrate dev --name add_user_table
+# 1. Create Prisma migration file (without applying)
+npx prisma migrate dev --name add_user_table --create-only
 
-# 2. Generate comment migration (append to same migration)
+# 2. Append comment statements to the migration
 npx pcm --append
 
-# Or create as separate migration
+# 3. Apply the migration
+npx prisma migrate dev
+```
+
+Or create comments as a separate migration:
+
+```bash
+# 1. Apply schema changes first
+npx prisma migrate dev --name add_user_table
+
+# 2. Create comment migration
 npx pcm -n "add_user_comments"
+
+# 3. Apply comment migration
+npx prisma migrate dev
 ```
 
 ## Files

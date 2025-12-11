@@ -139,17 +139,30 @@ Prisma 4.x ~ 7.x 버전을 지원합니다.
 
 ## Workflow
 
-`npx prisma migrate dev` 실행 후 이 도구를 실행하는 것을 권장합니다:
+`--create-only` 옵션으로 migration 파일만 먼저 생성하고, 주석을 추가한 뒤 적용하는 것을 권장합니다:
 
 ```bash
-# 1. Prisma migration 생성
-npx prisma migrate dev --name add_user_table
+# 1. Prisma migration 파일 생성 (적용하지 않음)
+npx prisma migrate dev --name add_user_table --create-only
 
-# 2. 주석 migration 생성 (같은 migration에 추가)
+# 2. migration에 주석 구문 추가
 npx pcm --append
 
-# 또는 별도 migration으로 생성
+# 3. migration 적용
+npx prisma migrate dev
+```
+
+또는 별도 migration으로 생성:
+
+```bash
+# 1. 스키마 변경 먼저 적용
+npx prisma migrate dev --name add_user_table
+
+# 2. 주석 migration 생성
 npx pcm -n "add_user_comments"
+
+# 3. 주석 migration 적용
+npx prisma migrate dev
 ```
 
 ## Files
