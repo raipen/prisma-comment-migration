@@ -7,6 +7,10 @@
     "pcm": "./dist/index.js"
   },
   "type": "module",
+  "files": [
+    "dist",
+    "README.ko.md"
+  ],
   "scripts": {
     "build": "rm -rf dist/ && esbuild src/index.ts --bundle --platform=node --format=esm --outfile=dist/index.js --banner:js='#!/usr/bin/env node' --packages=external && chmod +x dist/index.js",
     "typecheck": "tsc --noEmit",
